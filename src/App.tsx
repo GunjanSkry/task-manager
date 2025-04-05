@@ -1,10 +1,13 @@
 import "./App.css";
-import Home from "./components/Board/Board";
+import BoardList from "./components/BoardList/BoardList";
+import BoardsProvider from "./contexts/BoardContext";
 
 function App() {
   return (
     <>
-      <Home />
+      <BoardsProvider>
+        <BoardList />
+      </BoardsProvider>
     </>
   );
 }

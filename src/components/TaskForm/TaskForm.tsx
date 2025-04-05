@@ -1,3 +1,4 @@
+import { Task } from "@/types/task";
 import {
   TextField,
   Button,
@@ -9,37 +10,46 @@ import {
 } from "@mui/material";
 import dayjs from "dayjs";
 import { useActionState } from "react";
-
-interface TaskData {
-  title: string | null;
-  description: string | null;
-  deadline: string | null;
-}
-
-const saveNewTask = async (prevFormState: FormData, formData: FormData) => {
-  const task = {
-    title: formData.get("title"),
-    description: formData.get("description"),
-    deadline: formData.get("deadline"),
-  };
-  // Simulate saving the task to a database or API
-  console.log("Task saved:", prevFormState);
-};
+import { FORM_MODES } from "@/constants/form-modes";
 
 interface TaskFormProps {
   open: boolean;
   handleClose: () => void;
+  getFormData: (data: Task) => void;
+  initialTaskFormData?: {
+    title: string;
+    description: string;
+    deadline: string;
+  };
+  mode?: string;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ open, handleClose }) => {
-  const initialTaskData: TaskData = {
-    title: "Toosdf",
-    description: " asdfasdfsa",
+const TaskForm: React.FC<TaskFormProps> = ({
+  open,
+  handleClose,
+  getFormData,
+  initialTaskFormData = {
+    id: "",
+    title: "",
+    description: "",
     deadline: "",
+  },
+  mode = FORM_MODES.CREATE,
+}) => {
+  const saveNewTask = async (_prevFormData: unknown, formData: FormData) => {
+    const task: Task = {
+      title: formData.get("title")?.toString().trim() || "",
+      description: formData.get("description")?.toString().trim() || "",
+      deadline: formData.get("deadline")?.toString().trim() || "",
+    };
+
+    getFormData(task);
+    return task;
   };
-  const [data, action, isLoading] = useActionState(
+
+  const [data, action, isPending] = useActionState<Task, FormData>(
     saveNewTask,
-    initialTaskData
+    initialTaskFormData
   );
 
   return (
@@ -56,7 +66,9 @@ const TaskForm: React.FC<TaskFormProps> = ({ open, handleClose }) => {
         }),
       }}
     >
-      <DialogTitle sx={{ fontSize: "2rem" }}>Create New Task</DialogTitle>
+      <DialogTitle sx={{ fontSize: "2rem" }}>
+        {mode === FORM_MODES.EDIT ? "Edit Task" : "Create New Task"}
+      </DialogTitle>
       <DialogContent>
         <Box
           component="form"
@@ -71,8 +83,9 @@ const TaskForm: React.FC<TaskFormProps> = ({ open, handleClose }) => {
             label="Title"
             name="title"
             variant="standard"
-            defaultValue={data?.title}
+            defaultValue={data?.title || initialTaskFormData.title}
             placeholder="Task Title"
+            autoFocus
             required
             slotProps={{
               htmlInput: () => ({
@@ -87,7 +100,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ open, handleClose }) => {
             variant="standard"
             multiline
             rows={4}
-            defaultValue={data?.description}
+            defaultValue={data?.description || initialTaskFormData.description}
             placeholder="Task Description"
             required
             slotProps={{
@@ -111,20 +124,20 @@ const TaskForm: React.FC<TaskFormProps> = ({ open, handleClose }) => {
                 max: dayjs().add(1, "year").format("YYYY-MM-DD").toString(),
               }),
             }}
-            defaultValue={data?.deadline}
+            defaultValue={data?.deadline || initialTaskFormData.deadline}
             required
           />
           <DialogActions>
-            <Button onClick={handleClose} color="secondary">
+            <Button onClick={handleClose} color="inherit">
               Cancel
             </Button>
             <Button
               type="submit"
               variant="contained"
               color="primary"
-              loading={isLoading}
+              loading={isPending}
             >
-              Create Task
+              {mode === FORM_MODES.EDIT ? "Update Task" : "Create Task"}
             </Button>
           </DialogActions>
         </Box>
