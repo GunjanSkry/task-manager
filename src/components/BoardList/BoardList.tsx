@@ -8,11 +8,9 @@ const BoardList: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1, width: "100%" }}>
-      <Grid container justifyContent="center">
+      <Grid container spacing={8} wrap="nowrap">
         {boards.map((board) => (
-          <Grid container sx={{ flexGrow: 1 }} key={board.id}>
-            <Board board={board} />
-          </Grid>
+          <Board board={board} />
         ))}
       </Grid>
     </Box>

@@ -52,6 +52,7 @@ const TaskCard: React.FC<TaskProps> = ({
           cursor: "pointer",
         }}
         onClick={() => setOpen(true)}
+        draggable
       >
         <Box
           display="flex"

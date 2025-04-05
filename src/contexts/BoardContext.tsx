@@ -48,6 +48,16 @@ const checkLocalStorage = () => {
       name: "Tasks To Do",
       tasks: [],
     },
+    {
+      id: uuidv4(),
+      name: "In Progress",
+      tasks: [],
+    },
+    {
+      id: uuidv4(),
+      name: "Done",
+      tasks: [],
+    },
   ];
 
   return initialBoards;

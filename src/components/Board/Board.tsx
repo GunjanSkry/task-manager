@@ -69,7 +69,7 @@ const Board: React.FC<IBoardProps> = ({ board }) => {
   };
 
   return (
-    <Grid size={{ xs: 10, md: 5 }}>
+    <Grid size={4}>
       <Item>
         <Box>
           <Typography
