@@ -44,7 +44,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
     };
 
     getFormData(task);
-    return task;
+    return initialTaskFormData;
   };
 
   const [data, action, isPending] = useActionState<Task, FormData>(

@@ -14,6 +14,7 @@ interface TaskProps {
   setSelectedTask: (task: Task) => void;
   setFormMode: (mode: string) => void;
   handleOpen: () => void;
+  boardId: string;
 }
 
 const buttonOutlineStyle = {
@@ -31,15 +32,34 @@ const TaskCard: React.FC<TaskProps> = ({
   setFormMode,
   setSelectedTask,
   handleOpen,
+  boardId,
 }) => {
   const [open, setOpen] = useState(false);
 
   const deadline: string = dayjs(task.deadline).format("D MMM YYYY");
 
-  const onClickEdit = (task: Task) => {
+  const onClickEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setSelectedTask(task);
     setFormMode(FORM_MODES.EDIT);
     handleOpen();
+  };
+
+  const onDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete(task.id as string);
+  };
+
+  const onCardDragStart = (e: React.DragEvent) => {
+    const payload = {
+      boardId,
+      task,
+    };
+    e.dataTransfer.setData("text/plain", JSON.stringify(payload));
+  };
+
+  const onCardDragEnd = (e: React.DragEvent) => {
+    e.dataTransfer.clearData();
   };
 
   return (
@@ -49,10 +69,17 @@ const TaskCard: React.FC<TaskProps> = ({
         sx={{
           width: "100%",
           flexGrow: 1,
-          cursor: "pointer",
+          cursor: "grab",
+          "&:active": {
+            opacity: 1,
+            border: "1px solid #111",
+          },
         }}
         onClick={() => setOpen(true)}
         draggable
+        onDragStart={onCardDragStart}
+        onDragEnd={onCardDragEnd}
+        data-testid={task.id}
       >
         <Box
           display="flex"
@@ -96,7 +123,7 @@ const TaskCard: React.FC<TaskProps> = ({
           <Box display="flex" justifyContent="flex-end" alignItems="flex-start">
             <IconButton
               color="primary"
-              onClick={() => onClickEdit(task)}
+              onClick={onClickEdit}
               aria-label="edit task"
               sx={{ ...buttonOutlineStyle }}
             >
@@ -104,7 +131,7 @@ const TaskCard: React.FC<TaskProps> = ({
             </IconButton>
             <IconButton
               color="error"
-              onClick={() => onDelete(task.id as string)}
+              onClick={onDeleteClick}
               aria-label="delete task"
               sx={{ ...buttonOutlineStyle }}
             >
