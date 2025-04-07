@@ -23,6 +23,7 @@ describe("TaskCard Component", () => {
         setFormMode={mockSetFormMode}
         setSelectedTask={mockSetSelectedTask}
         onDelete={mockOnDelete}
+        boardId="1"
       />
     );
 
@@ -38,6 +39,7 @@ describe("TaskCard Component", () => {
         setFormMode={mockSetFormMode}
         setSelectedTask={mockSetSelectedTask}
         onDelete={mockOnDelete}
+        boardId="1"
       />
     );
     act(() => {
@@ -54,6 +56,7 @@ describe("TaskCard Component", () => {
         setFormMode={mockSetFormMode}
         setSelectedTask={mockSetSelectedTask}
         onDelete={mockOnDelete}
+        boardId="1"
       />
     );
     act(() => {
@@ -62,5 +65,28 @@ describe("TaskCard Component", () => {
     expect(mockSetSelectedTask).toHaveBeenCalledTimes(1);
     expect(mockSetFormMode).toHaveBeenCalledWith("edit");
     expect(mockHandleOpen).toHaveBeenCalledTimes(1);
+  });
+
+  it("opens the task detail dialog when the card is clicked", () => {
+    render(
+      <TaskCard
+        task={mockTask}
+        onDelete={mockOnDelete}
+        setSelectedTask={mockSetSelectedTask}
+        setFormMode={mockSetFormMode}
+        handleOpen={mockHandleOpen}
+        boardId="1"
+      />
+    );
+
+    act(() => {
+      screen.getByText("Test Task").click();
+    });
+
+    expect(screen.getByText("Task Details")).toBeInTheDocument();
+    expect(screen.getAllByText("Test Task")).toHaveLength(2);
+    expect(screen.getByText("Test Description")).toBeInTheDocument();
+    expect(screen.getAllByText("10 Oct 2025")).toHaveLength(2);
+    expect(screen.getByText("Close")).toBeInTheDocument();
   });
 });

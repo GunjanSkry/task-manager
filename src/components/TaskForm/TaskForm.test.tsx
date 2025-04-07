@@ -178,4 +178,48 @@ describe("TaskForm Component", () => {
       deadline: deadline,
     });
   });
+
+  it("form should not have previous form value when creating new task", async () => {
+    const deadline = dayjs().add(1, "day").format("YYYY-MM-DD");
+    render(
+      <TaskForm
+        open={true}
+        handleClose={mockHandleClose}
+        getFormData={mockGetFormData}
+        mode={FORM_MODES.CREATE}
+      />
+    );
+
+    const titleInput = screen.getByLabelText(/Title/i);
+    const descriptionInput = screen.getByLabelText(/Description/i);
+    const deadlineInput = screen.getByLabelText(/Deadline/i);
+    const createButton = screen.getByRole("button", { name: /Create Task/i });
+
+    await act(async () => {
+      fireEvent.change(titleInput, { target: { value: "New Task" } });
+      fireEvent.change(descriptionInput, {
+        target: { value: "Task Description" },
+      });
+      fireEvent.change(deadlineInput, {
+        target: { value: deadline },
+      });
+    });
+
+    expect(titleInput).toHaveValue("New Task");
+    expect(descriptionInput).toHaveValue("Task Description");
+
+    await act(async () => {
+      fireEvent.click(createButton);
+    });
+
+    expect(mockGetFormData).toHaveBeenCalledWith({
+      title: "New Task",
+      description: "Task Description",
+      deadline: deadline,
+    });
+
+    expect(titleInput).toHaveValue("");
+    expect(descriptionInput).toHaveValue("");
+    expect(deadlineInput).toHaveValue("");
+  });
 });

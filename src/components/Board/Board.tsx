@@ -42,8 +42,12 @@ const Board: React.FC<IBoardProps> = ({ board }) => {
   const { open, handleOpen, handleClose } = useFormDialog();
   const [formMode, setFormMode] = useState<string>(FORM_MODES.CREATE);
   const [selectedTask, setSelectedTask] = useState<Task>(defultFormData);
-  const { addTaskToBoard, removeTaskFromBoard, updateTaskInBoard } =
-    useBoards();
+  const {
+    addTaskToBoard,
+    removeTaskFromBoard,
+    updateTaskInBoard,
+    moveTaskAcrossBoard,
+  } = useBoards();
 
   const onClickNewTask = () => {
     setFormMode(FORM_MODES.CREATE);
@@ -68,6 +72,14 @@ const Board: React.FC<IBoardProps> = ({ board }) => {
     handleClose();
   };
 
+  const onTaskDrop = (e: React.DragEvent) => {
+    const payload = e.dataTransfer.getData("text/plain");
+    if (payload) {
+      const payloadObj = JSON.parse(payload);
+      moveTaskAcrossBoard(board.id, payloadObj);
+    }
+  };
+
   return (
     <Grid size={4}>
       <Item>
@@ -88,6 +100,8 @@ const Board: React.FC<IBoardProps> = ({ board }) => {
             backgroundColor: "transparent",
           }}
           gap={1}
+          onDrop={onTaskDrop}
+          onDragOver={(e) => e.preventDefault()}
         >
           {board.tasks.length > 0 ? (
             board.tasks.map((task) => (
@@ -98,6 +112,7 @@ const Board: React.FC<IBoardProps> = ({ board }) => {
                 setSelectedTask={setSelectedTask}
                 setFormMode={setFormMode}
                 handleOpen={handleOpen}
+                boardId={board.id}
               />
             ))
           ) : (
@@ -146,7 +161,7 @@ const Board: React.FC<IBoardProps> = ({ board }) => {
             handleClose={handleClose}
             getFormData={getFormData}
             mode={formMode}
-            initialTaskFormData={FORM_MODES.EDIT ? selectedTask : undefined}
+            initialTaskFormData={selectedTask}
           />
         </Grid>
       </Item>

@@ -16,6 +16,11 @@ export interface Board {
 
 const LOCAL_STORAGE_KEY = "boards";
 
+interface DraggedTask {
+  boardId: string;
+  task: Task;
+}
+
 export interface BoardsContextType {
   boards: Board[];
   addBoard: (name: string) => void;
@@ -27,6 +32,7 @@ export interface BoardsContextType {
     taskId: string,
     updatedTask: Partial<Task>
   ) => void;
+  moveTaskAcrossBoard: (newBoardId: string, payload: DraggedTask) => void;
 }
 
 export const BoardsContext = createContext<BoardsContextType | null>(null);
@@ -127,6 +133,25 @@ const BoardsProvider = ({ children }: BoardsProviderProps): React.ReactNode => {
     );
   };
 
+  const moveTaskAcrossBoard = (newBoardId: string, payload: DraggedTask) => {
+    const { boardId: oldBoardId, task: oldBoardTask } = payload;
+    if (newBoardId !== oldBoardId) {
+      setBoards((prevBoards) => {
+        return prevBoards.map((board) => {
+          if (board.id === oldBoardId) {
+            board.tasks = board.tasks.filter(
+              (task) => task.id !== oldBoardTask.id
+            );
+          }
+          if (board.id === newBoardId) {
+            board.tasks = [...board.tasks, oldBoardTask];
+          }
+          return { ...board };
+        });
+      });
+    }
+  };
+
   return (
     <BoardsContext.Provider
       value={{
@@ -136,6 +161,7 @@ const BoardsProvider = ({ children }: BoardsProviderProps): React.ReactNode => {
         addTaskToBoard,
         removeTaskFromBoard,
         updateTaskInBoard,
+        moveTaskAcrossBoard,
       }}
     >
       {children}
